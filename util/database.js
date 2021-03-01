@@ -2,10 +2,10 @@ const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 
 let _db;
-
+const mongoPw = process.env.TESTING_MONGODBPW;
 
 const mongoConnect = (callback) => {
-    MongoClient.connect('mongodb+srv://Daniel_shiloah:8oOBdwanxrWVyFjv@cluster0.86kjd.mongodb.net/shop?retryWrites=true&w=majority')
+    MongoClient.connect(`mongodb+srv://Daniel_shiloah:${mongoPw}@cluster0.86kjd.mongodb.net/shop?retryWrites=true&w=majority`, { useUnifiedTopology: true })
     .then(client => {
         console.log('Connected!');
         _db = client.db();
