@@ -1,11 +1,19 @@
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
 
 const User = require('../models/user');
+
+const transpoter = nodemailer.createTransport(sendgridTransport({
+    auth: {
+        api_key: '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'
+    }
+}));
 
 exports.getLogin = (req, res, next) => {
     let message = req.flash('error');
     if (message.length > 0) {
-        message=message[0];
+        message = message[0];
     } else {
         message = null;
     }
@@ -19,7 +27,7 @@ exports.getLogin = (req, res, next) => {
 exports.getSignup = (req, res, next) => {
     let message = req.flash('error');
     if (message.length > 0) {
-        message=message[0];
+        message = message[0];
     } else {
         message = null;
     }
@@ -84,6 +92,15 @@ exports.postSignup = (req, res, next) => {
                 })
                 .then(result => {
                     res.redirect('/login');
+                    return transpoter.sendMail({
+                        to: email,
+                        from: 'daniel.s@eko.com',
+                        subject: 'Signup succeded!',
+                        html: '<h1>You successfully signed up!</h1>'
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
                 });
         })
         .catch(err => console.log(err));
@@ -93,5 +110,19 @@ exports.postLogout = (req, res, next) => {
     req.session.destroy(err => {
         console.log(err);
         res.redirect('/');
+    });
+};
+
+exports.getReset = (req, res, next) => {
+    let message = req.flash('error');
+    if (message.length > 0) {
+        message = message[0];
+    } else {
+        message = null;
+    }
+    res.render('auth/reset', {
+        path: '/reset',
+        pageTitle: 'Reset Password',
+        errorMessage: message
     });
 };
