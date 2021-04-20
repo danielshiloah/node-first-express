@@ -8,12 +8,15 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
 const multer = require('multer');
+const helmet = require('helmet');
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
 const mongoPw = process.env.TESTING_MONGODBPW;
-const MONGODB_URI = `mongodb+srv://Daniel_shiloah:${mongoPw}@cluster0.86kjd.mongodb.net/shop?retryWrites=true&w=majority`;
+const mongoUser = process.env.TESTING_MONGO_USER;
+const mongoDefaultDatabase = process.env.TESTING_MONGO_DEFAULT_DATABASE;
+const MONGODB_URI = `mongodb+srv://${mongoUser}:${mongoPw}@cluster0.86kjd.mongodb.net/${mongoDefaultDatabase}?retryWrites=true&w=majority`;
 
 const app = express();
 const store = new MongoDBStore({
@@ -49,6 +52,8 @@ app.set('views', 'views');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
+
+app.use(helmet());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
@@ -109,6 +114,6 @@ mongoose
     .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
         console.log('connected!');
-        app.listen(3000);
+        app.listen(process.env.PORT || 3000);
     })
     .catch(err => console.log('Server Error', err));
